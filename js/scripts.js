@@ -8,41 +8,50 @@ const btn = document.querySelector("#botao")
 btn.addEventListener('click', function (e) {
   e.preventDefault();
   const nmPoke = document.querySelector("#nome");
-  getPokemonName(nmPoke.value);
+  getPokemonData(nmPoke.value.toLowerCase());
   inputName.value = '';
   postsContainer.innerHTML = '';
 })
 
-
-async function getPokemonName(nmPoke) {
+async function getPokemonData(nmPoke) {
+  // requisição da API para trazer nome e url de todos os pokemon disponíveis
   const response = await fetch(`${url}`);
   const data = await response.json();
+  console.log(data.results)
+
+  // array para verificação de nome
   const arrayNomes = [];
   data.results.forEach((result) => {
     arrayNomes.push(result.name);
   })
 
-  if (arrayNomes.includes(nmPoke)) {
+  // variável contendo o valor da url que será passada na segunda requisição
+  const urlPoke = data.results[arrayNomes.indexOf(nmPoke)].url;
+
+  // segunda requisição para trazer dados mais específicos de cada pokémon
+  const requisicao2 = await fetch(urlPoke);
+  const dadosPokemon = await requisicao2.json();
+  console.log(dadosPokemon)
+
+  if (arrayNomes.includes(dadosPokemon.species.name)) {
     const div = document.createElement("div");
+    const number = document.createElement("p");
     const nome = document.createElement("h2");
     const tipo1 = document.createElement("p");
     const tipo2 = document.createElement("p");
     const linkAPI = document.createElement("a");
     const img = document.createElement("img");
-    const urlPoke = data.results[arrayNomes.indexOf(nmPoke)].url;
-    const response2 = await fetch(urlPoke);
-    const data2 = await response2.json();
-    console.log(data2)
-    tipo1.innerText = data2.types[0].type.name;
-    if (data2.types[1]) tipo2.innerText = data2.types[1].type.name;
-    nome.innerText = nmPoke.toUpperCase();
+    tipo1.innerText = `Tipo 1: ${dadosPokemon.types[0].type.name.toUpperCase()}`;
+    number.innerText = `Número: ${dadosPokemon.id}`;
+    if (dadosPokemon.types[1]) tipo2.innerText = `Tipo 2: ${dadosPokemon.types[1].type.name.toUpperCase()}`;
+    nome.innerText = dadosPokemon.species.name.toUpperCase();
     linkAPI.innerText = "Mais informações";
     linkAPI.setAttribute("href", `https://bulbapedia.bulbagarden.net/wiki/${nmPoke}_(Pok%C3%A9mon)`);
     linkAPI.setAttribute("target", "_blank");
-    img.setAttribute("src", data2.sprites.front_default);
-
+    img.setAttribute("src", dadosPokemon.sprites.front_default);
     div.appendChild(nome);
     div.appendChild(img);
+    div.appendChild(number);
     div.appendChild(tipo1);
     div.appendChild(tipo2);
     div.appendChild(linkAPI);
