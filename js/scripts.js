@@ -55,6 +55,6 @@ async function getPokemonData(nmPoke) {
     postsContainer.appendChild(div);
 
   } else {
-    alert('infforme valido')
+    alert('Escreva um nome válido')
   }
 }
