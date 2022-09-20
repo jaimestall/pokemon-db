@@ -1,4 +1,3 @@
-const url = "https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0";
 const loadingElement = document.querySelector("#loading");
 const postsContainer = document.querySelector("#posts-container");
 const inputName = document.querySelector("#nome");
@@ -8,16 +7,15 @@ const btn = document.querySelector("#botao")
 btn.addEventListener('click', function (e) {
   e.preventDefault();
   const nmPoke = document.querySelector("#nome");
-  getPokemonData(nmPoke.value.toLowerCase());
+  getPokemonData(nmPoke.value.toLowerCase().trim());
   inputName.value = '';
   postsContainer.innerHTML = '';
 })
 
 async function getPokemonData(nmPoke) {
   // requisição da API para trazer nome e url de todos os pokemon disponíveis
-  const response = await fetch(`${url}`);
+  const response = await fetch("https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0");
   const data = await response.json();
-  console.log(data.results)
 
   // array para verificação de nome
   const arrayNomes = [];
@@ -25,15 +23,14 @@ async function getPokemonData(nmPoke) {
     arrayNomes.push(result.name);
   })
 
-  // variável contendo o valor da url que será passada na segunda requisição
-  const urlPoke = data.results[arrayNomes.indexOf(nmPoke)].url;
+  if (arrayNomes.includes(nmPoke)) {
+    // variável contendo o valor da url que será passada na segunda requisição
+    const urlPoke = data.results[arrayNomes.indexOf(nmPoke)].url;
 
-  // segunda requisição para trazer dados mais específicos de cada pokémon
-  const requisicao2 = await fetch(urlPoke);
-  const dadosPokemon = await requisicao2.json();
-  console.log(dadosPokemon)
+    // segunda requisição para trazer dados mais específicos de cada pokémon
+    const requisicao2 = await fetch(urlPoke);
+    const dadosPokemon = await requisicao2.json();
 
-  if (arrayNomes.includes(dadosPokemon.species.name)) {
     const div = document.createElement("div");
     const number = document.createElement("p");
     const nome = document.createElement("h2");
@@ -42,7 +39,7 @@ async function getPokemonData(nmPoke) {
     const linkAPI = document.createElement("a");
     const img = document.createElement("img");
     tipo1.innerText = `Tipo 1: ${dadosPokemon.types[0].type.name.toUpperCase()}`;
-    number.innerText = `Número: ${dadosPokemon.id}`;
+    number.innerText = `Número: ${dadosPokemon.game_indices[dadosPokemon.game_indices.length - 1].game_index}`;
     if (dadosPokemon.types[1]) tipo2.innerText = `Tipo 2: ${dadosPokemon.types[1].type.name.toUpperCase()}`;
     nome.innerText = dadosPokemon.species.name.toUpperCase();
     linkAPI.innerText = "Mais informações";
@@ -56,7 +53,8 @@ async function getPokemonData(nmPoke) {
     div.appendChild(tipo2);
     div.appendChild(linkAPI);
     postsContainer.appendChild(div);
+
   } else {
-    alert('Informe um nome válido');
+    alert('infforme valido')
   }
 }
