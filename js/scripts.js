@@ -12,7 +12,7 @@ btn.addEventListener('click', function (e) {
   postsContainer.innerHTML = '';
 })
 
-async function getPokemonData(nmPoke) {
+async function getPokemonData(nmDigitado) {
   // requisição da API para trazer nome e url de todos os pokemon disponíveis
   const response = await fetch("https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0");
   const data = await response.json();
@@ -23,14 +23,23 @@ async function getPokemonData(nmPoke) {
     arrayNomes.push(result.name);
   })
 
-  if (arrayNomes.includes(nmPoke)) {
-    // variável contendo o valor da url que será passada na segunda requisição
-    const urlPoke = data.results[arrayNomes.indexOf(nmPoke)].url;
+  const exibidos = []
+  arrayNomes.forEach((nome, index) => {
+    if (nome.substr(0, nmDigitado.length).includes(nmDigitado)) {
+      exibidos.push([nome, index])
+    }
+  })
+  console.log(exibidos, 'uuuuuuuuuuu')
+
+  if (arrayNomes.includes(nmDigitado.substr(0, nmDigitado.length))) {
+    // variável contendo a url que será passada na segunda requisição
+    const urlPoke = data.results[arrayNomes.indexOf(nmDigitado)].url;
 
     // segunda requisição para trazer dados mais específicos de cada pokémon
     const requisicao2 = await fetch(urlPoke);
     const dadosPokemon = await requisicao2.json();
 
+    // cria div para exibir informações do pokemon buscado
     const div = document.createElement("div");
     const number = document.createElement("p");
     const nome = document.createElement("h2");
@@ -39,11 +48,10 @@ async function getPokemonData(nmPoke) {
     const linkAPI = document.createElement("a");
     const img = document.createElement("img");
     tipo1.innerText = `Tipo 1: ${dadosPokemon.types[0].type.name.toUpperCase()}`;
-    number.innerText = `Número: ${dadosPokemon.game_indices[dadosPokemon.game_indices.length - 1].game_index}`;
     if (dadosPokemon.types[1]) tipo2.innerText = `Tipo 2: ${dadosPokemon.types[1].type.name.toUpperCase()}`;
     nome.innerText = dadosPokemon.species.name.toUpperCase();
     linkAPI.innerText = "Mais informações";
-    linkAPI.setAttribute("href", `https://bulbapedia.bulbagarden.net/wiki/${nmPoke}_(Pok%C3%A9mon)`);
+    linkAPI.setAttribute("href", `https://bulbapedia.bulbagarden.net/wiki/${nmDigitado}_(Pok%C3%A9mon)`);
     linkAPI.setAttribute("target", "_blank");
     img.setAttribute("src", dadosPokemon.sprites.front_default);
     div.appendChild(nome);
